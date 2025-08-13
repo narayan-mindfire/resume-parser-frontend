@@ -15,7 +15,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="w-full z-10 px-6 py-4 flex justify-between items-center bg-[var(--background)] text-[var(--text)] shadow-2xl">
+    <nav className="w-full z-10 px-6 py-4 flex justify-between items-center bg-[var(--background2)] text-[var(--text)] shadow-2xl">
       <Link to={currentUser ? "/upload" : "/"}>
         <div className="text-xl font-bold flex items-center gap-2">
           📃<span>ResumeParser</span>

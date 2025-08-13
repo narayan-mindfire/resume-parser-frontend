@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 import API from "../services/axiosInterceptor";
+import { useNavigate } from "react-router-dom";
+import Button from "./utils/Button";
 
-// Set the chunk size for file uploads to 1MB
 const CHUNK_SIZE = 1024 * 1024;
 const API_URL = "http://localhost:5003";
 
@@ -18,66 +19,50 @@ interface FileStatus {
   progress?: number;
 }
 
-interface MatchResult {
-  total: number;
-  breakdown: {
-    skills: number;
-    experience: number;
-    keywords: number;
-  };
-}
-
 const ZipUploader: React.FC = () => {
+  const navigate = useNavigate();
   const [uploadStatus, setUploadStatus] = useState("Idle");
   const [fileStatuses, setFileStatuses] = useState<Record<string, FileStatus>>(
-    {}
+    {},
   );
-  const [matchStatus, setMatchStatus] = useState("Idle");
-  const [matchResult, setMatchResult] = useState<MatchResult | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [completedBatchId, setCompletedBatchId] = useState<string | null>(null);
 
   const socketRef = useRef<Socket | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    getUploadedData();
-    const socket = io(API_URL, {
-      transports: ["websocket"],
-    });
+    const socket = io(API_URL, { transports: ["websocket"] });
     socketRef.current = socket;
 
-    socket.on("connect", () => {
-      console.log("Connected to Socket.IO server");
-    });
+    socket.on("connect", () => console.log("Connected to Socket.IO server"));
 
     socket.on("processing-complete", (data) => {
-      console.log("Processing complete:", data);
-      setFileStatuses((prevStatuses) => ({
-        ...prevStatuses,
+      setFileStatuses((prev) => ({
+        ...prev,
         [data.fileName]: {
-          ...prevStatuses[data.fileName],
+          ...prev[data.fileName],
+          fileName: data.fileName,
           status: "completed",
           message: "Processing completed successfully.",
         },
       }));
-      console.log("file processing completed");
-      getUploadedData();
+    });
+
+    socket.on("batch-complete", (data: { batchId: string }) => {
+      setUploadStatus("Processing complete!");
+      setCompletedBatchId(data.batchId);
     });
 
     socket.on("processing-failed", (data) => {
-      console.log("Processing failed:", data);
-      setFileStatuses((prevStatuses) => ({
-        ...prevStatuses,
+      setFileStatuses((prev) => ({
+        ...prev,
         [data.fileName]: {
-          ...prevStatuses[data.fileName],
+          ...prev[data.fileName],
           status: "failed",
           message: `Processing failed: ${data.error}`,
         },
       }));
-    });
-
-    socket.on("job-matched", (data) => {
-      console.log("Job match result received:", data);
-      setMatchStatus("Matching complete!");
-      setMatchResult(data.matchResult);
     });
 
     return () => {
@@ -85,23 +70,14 @@ const ZipUploader: React.FC = () => {
     };
   }, []);
 
-  const getUploadedData = async () => {
-    try {
-      const { data: res } = await API.get("/resumes/get-all-resumes");
-      console.log("resumes --------------------------");
-      console.log(res);
-    } catch (err) {
-      console.error("Error fetching resumes:", err);
-    }
-  };
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleFileUpload = async (file: File) => {
+    setCompletedBatchId(null);
+    setFileStatuses({});
+    setUploadStatus("Uploading...");
 
     const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
     const uploadId = `${Date.now()}-${file.name}`;
-    setUploadStatus("Uploading...");
+    let finalBatchId: string | null = null; // Store the batchId here
 
     setFileStatuses({
       [file.name]: {
@@ -121,68 +97,111 @@ const ZipUploader: React.FC = () => {
       formData.append("fileName", file.name);
 
       try {
-        await API.post("/uploads/zip", formData, {
+        const response = await API.post("/uploads/zip", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
+        if (response.data.batchId) {
+          finalBatchId = response.data.batchId;
+        }
       } catch (err) {
-        setUploadStatus(`Upload failed at chunk ${i}`);
-        console.error("Chunk upload error:", err);
+        if (err instanceof Error) {
+          setUploadStatus(`Upload failed at chunk ${i}, ${err.message}`);
+        }
         return;
       }
     }
 
     setUploadStatus(
-      "Upload complete. Waiting for server to begin processing..."
+      "Upload complete. Waiting for server to begin processing...",
     );
+    socketRef.current?.emit("join-upload", uploadId);
 
-    if (socketRef.current) {
-      socketRef.current.emit("join-upload", uploadId);
+    // Only emit the batch event after the finalBatchId is available
+    if (finalBatchId) {
+      socketRef.current?.emit("join-batch", finalBatchId);
     }
   };
 
-  const handleMatchJob = async () => {
-    const jobId = "job-2";
-    const resumeId = "d4ccf16b-7e12-47c5-957f-6d1f865ce600";
-    const trackingKey = `${jobId}:${resumeId}`;
+  const onFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleFileUpload(file);
+  };
 
-    setMatchStatus("Requesting job match...");
-    setMatchResult(null);
+  const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) handleFileUpload(file);
+  };
 
-    if (socketRef.current) {
-      socketRef.current.emit("join-match", trackingKey);
-    }
-
-    try {
-      await API.get(`/jobs/match-job`, {
-        params: { jobId, resumeId },
-      });
-      setMatchStatus("Matching job started. Awaiting results...");
-    } catch (error) {
-      console.error("Error during API call:", error);
-      setMatchStatus("API request failed.");
+  const handleRedirect = () => {
+    if (completedBatchId) {
+      navigate(`/uploads/${completedBatchId}`);
     }
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-2">Upload ZIP (Chunked)</h2>
-      <input type="file" accept=".zip" onChange={handleFileUpload} />
-      <p className="mt-2 text-sm">Main Status: {uploadStatus}</p>
+    <div className="p-4 max-w-2xl mx-auto min-h-[80vh] bg-[var(--background)] text-[var(--text)] transition-colors duration-300">
+      <h2 className="text-2xl font-bold mb-4 text-[var(--primary)]">
+        Upload ZIP (Drag & Drop)
+      </h2>
+
+      <div
+        className={`border-2 border-dashed rounded-lg p-10 py-20 text-center cursor-pointer transition-colors ${
+          isDragging
+            ? "border-[var(--accent)] bg-[var(--highlight)]"
+            : "border-[var(--muted)]"
+        }`}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setIsDragging(true);
+        }}
+        onDragLeave={() => setIsDragging(false)}
+        onDrop={onDrop}
+        onClick={() => fileInputRef.current?.click()}
+      >
+        <p className="text-[var(--muted)]">
+          Drag & drop your .zip file here, or{" "}
+          <span className="text-[var(--accent)] underline">
+            click to browse
+          </span>
+        </p>
+        <input
+          type="file"
+          accept=".zip"
+          className="hidden"
+          ref={fileInputRef}
+          onChange={onFileSelect}
+        />
+      </div>
+
+      <p className="mt-3 text-sm text-[var(--muted)]">Status: {uploadStatus}</p>
+
+      {completedBatchId && (
+        <div className="mt-4">
+          <Button onClick={handleRedirect}>Go to Uploads Page</Button>
+        </div>
+      )}
 
       {Object.keys(fileStatuses).length > 0 && (
-        <div className="mt-4">
-          <h3 className="text-lg font-semibold">File Processing Status</h3>
+        <div className="mt-4 bg-[var(--background2)] p-4 rounded-lg shadow max-h-75 overflow-y-auto">
+          <h3 className="text-lg font-semibold mb-2 text-[var(--accent)]">
+            File Processing Status
+          </h3>
           <ul>
             {Object.values(fileStatuses).map((file, index) => (
-              <li key={index} className="flex items-center space-x-2">
-                <span>{file.fileName}:</span>
+              <li
+                key={index}
+                className="flex justify-between border-b border-[var(--muted)] py-1"
+              >
+                <span>{file.fileName}</span>
                 <span
                   className={
                     file.status === "completed"
-                      ? "text-green-600"
+                      ? "text-green-500"
                       : file.status === "failed"
-                        ? "text-red-600"
-                        : "text-blue-600"
+                        ? "text-red-500"
+                        : "text-[var(--accent)]"
                   }
                 >
                   {file.message}
@@ -192,37 +211,6 @@ const ZipUploader: React.FC = () => {
           </ul>
         </div>
       )}
-
-      {/* ⭐ New section for the job matching tester */}
-      <hr className="my-6 border-gray-300" />
-      <div>
-        <h3 className="text-xl font-bold mb-2">Job Matcher Tester</h3>
-        <p className="text-sm text-gray-600 mb-4">
-          This will trigger a job match for a hardcoded resume and job ID.
-        </p>
-        <button
-          onClick={handleMatchJob}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Test Job Match
-        </button>
-
-        <div className="mt-4 p-4 border border-gray-300 rounded">
-          <p className="font-semibold">Match Status: {matchStatus}</p>
-          {matchResult && (
-            <div className="mt-2">
-              <h4 className="text-lg font-bold">
-                Total Score: {matchResult.total}%
-              </h4>
-              <ul className="text-sm mt-1 list-disc list-inside">
-                <li>Skills: {matchResult.breakdown.skills}%</li>
-                <li>Experience: {matchResult.breakdown.experience}%</li>
-                <li>Keywords: {matchResult.breakdown.keywords}%</li>
-              </ul>
-            </div>
-          )}
-        </div>
-      </div>
     </div>
   );
 };

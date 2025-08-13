@@ -26,7 +26,7 @@ const Landing = () => {
   );
 
   return (
-    <main className="bg-[var(--background)] text-[var(--text)] transition-colors duration-300">
+    <main className="bg-[var(--background)] text-[var(--text)] transition-colors min-h-[90vh] duration-300">
       <Helmet>
         <title>Home | Resume Parser & Insights</title>
         <meta

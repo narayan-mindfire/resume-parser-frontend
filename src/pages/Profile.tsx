@@ -76,7 +76,7 @@ const ProfilePage = () => {
         />
       </Helmet>
 
-      <div className="min-h-screen bg-[var(--background2)] py-16 px-6 text-[var(--text)] transition-colors duration-300">
+      <div className="min-h-screen bg-[var(--background)] py-16 px-6 text-[var(--text)] transition-colors duration-300">
         {isConfirmingDelete && (
           <Suspense fallback={<div>Loading...</div>}>
             <ConfirmModal
