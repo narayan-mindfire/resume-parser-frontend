@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
+import API from "../services/axiosInterceptor";
 
 // Set the chunk size for file uploads to 1MB
 const CHUNK_SIZE = 1024 * 1024;
@@ -29,9 +30,8 @@ interface MatchResult {
 const ZipUploader: React.FC = () => {
   const [uploadStatus, setUploadStatus] = useState("Idle");
   const [fileStatuses, setFileStatuses] = useState<Record<string, FileStatus>>(
-    {},
+    {}
   );
-  // ⭐ New state for job matching
   const [matchStatus, setMatchStatus] = useState("Idle");
   const [matchResult, setMatchResult] = useState<MatchResult | null>(null);
 
@@ -74,7 +74,6 @@ const ZipUploader: React.FC = () => {
       }));
     });
 
-    // ⭐ New listener for the job matching notification
     socket.on("job-matched", (data) => {
       console.log("Job match result received:", data);
       setMatchStatus("Matching complete!");
@@ -82,18 +81,18 @@ const ZipUploader: React.FC = () => {
     });
 
     return () => {
-      // Disconnect when the component unmounts
       socket.disconnect();
     };
   }, []);
 
   const getUploadedData = async () => {
-    const resumes = await fetch(`${API_URL}/api/v1/resumes/get-all-resumes`, {
-      method: "GET",
-    });
-    const res = await resumes.json();
-    console.log("resumes --------------------------");
-    console.log(res);
+    try {
+      const { data: res } = await API.get("/resumes/get-all-resumes");
+      console.log("resumes --------------------------");
+      console.log(res);
+    } catch (err) {
+      console.error("Error fetching resumes:", err);
+    }
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -121,19 +120,19 @@ const ZipUploader: React.FC = () => {
       formData.append("totalChunks", totalChunks.toString());
       formData.append("fileName", file.name);
 
-      const res = await fetch(`${API_URL}/api/v1/uploads/zip`, {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!res.ok) {
+      try {
+        await API.post("/uploads/zip", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+      } catch (err) {
         setUploadStatus(`Upload failed at chunk ${i}`);
+        console.error("Chunk upload error:", err);
         return;
       }
     }
 
     setUploadStatus(
-      "Upload complete. Waiting for server to begin processing...",
+      "Upload complete. Waiting for server to begin processing..."
     );
 
     if (socketRef.current) {
@@ -141,9 +140,7 @@ const ZipUploader: React.FC = () => {
     }
   };
 
-  // ⭐ New function to handle the job matching request
   const handleMatchJob = async () => {
-    // These are the hardcoded values you requested for testing
     const jobId = "job-2";
     const resumeId = "d4ccf16b-7e12-47c5-957f-6d1f865ce600";
     const trackingKey = `${jobId}:${resumeId}`;
@@ -151,25 +148,18 @@ const ZipUploader: React.FC = () => {
     setMatchStatus("Requesting job match...");
     setMatchResult(null);
 
-    // ⭐ Tell the server to join the specific room for this match job
     if (socketRef.current) {
       socketRef.current.emit("join-match", trackingKey);
     }
 
     try {
-      const res = await fetch(
-        `${API_URL}/api/v1/jobs/match-job?jobId=${jobId}&resumeId=${resumeId}`,
-      );
-      if (!res.ok) {
-        setMatchStatus("API request failed.");
-        throw new Error("API request failed");
-      }
+      await API.get(`/jobs/match-job`, {
+        params: { jobId, resumeId },
+      });
       setMatchStatus("Matching job started. Awaiting results...");
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error("Error during API call:", error);
-        setMatchStatus(`Error: ${error.message}`);
-      }
+    } catch (error) {
+      console.error("Error during API call:", error);
+      setMatchStatus("API request failed.");
     }
   };
 
