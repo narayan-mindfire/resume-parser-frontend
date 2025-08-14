@@ -28,26 +28,28 @@ const UploadsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-100">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
-        <div className="ml-4 text-lg text-gray-700">Loading resumes...</div>
+      <div className="flex items-center justify-center h-screen bg-[var(--background)]">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-[var(--accent)] border-t-transparent"></div>
+        <div className="ml-4 text-lg text-[var(--text)]">
+          Loading resumes...
+        </div>
       </div>
     );
   }
 
   if (resumes.length === 0) {
     return (
-      <div className="p-8 text-center text-gray-500">
+      <div className="p-8 text-center text-[var(--text)] bg-[var(--background)]">
         No resumes found for this batch.
       </div>
     );
   }
 
   return (
-    <div className="p-4 max-w-6xl mx-auto">
-      <h2 className="text-3xl font-bold mb-6 text-gray-800">
+    <div className="p-4 max-w-6xl mx-auto bg-[var(--background)] min-h-screen">
+      <h2 className="text-3xl font-bold mb-6 text-[var(--text)]">
         Uploaded Resumes (Batch:{" "}
-        <span className="text-blue-600">{batchId}</span>)
+        <span className="text-[var(--accent)]">{batchId}</span>)
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {resumes.map((resume: Resume) => (
