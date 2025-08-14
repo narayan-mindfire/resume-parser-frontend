@@ -1,6 +1,8 @@
 import { useState } from "react";
 import type { Resume } from "../../types/types";
 import ResumeModal from "../modals/ResumeModal";
+import { Link } from "react-router-dom";
+import Button from "./Button";
 function ResumeCard(resume: Resume) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -33,8 +35,13 @@ function ResumeCard(resume: Resume) {
             {resume.processingStatus}
           </span>
         </div>
-
-        <p className="text-sm text-[var(--muted)] mb-4">{resume.fileName}</p>
+        <Link
+          to={resume.url || "#"}
+          target="_blank"
+          className="text-sm text-[var(--accent)] hover:underline"
+        >
+          <p className="text-sm text-[var(--accent)] mb-4">{resume.fileName}</p>
+        </Link>
 
         <div className="space-y-3">
           {resume.email && (
@@ -53,23 +60,19 @@ function ResumeCard(resume: Resume) {
             </div>
           )}
 
-          {resume.totalExperienceYears && (
-            <div>
-              <p className="text-[var(--text)] font-medium">
-                Total Experience:{" "}
-                <span className="font-normal">
-                  {resume.totalExperienceYears} years
-                </span>
-              </p>
-            </div>
-          )}
+          <div>
+            <p className="text-[var(--text)] font-medium">
+              Total Experience:{" "}
+              <span className="font-normal">
+                {resume.totalExperienceYears || 0} years
+              </span>
+            </p>
+          </div>
         </div>
 
-        <div className="mt-4 text-center">
-          <p className="text-sm text-[var(--muted)] italic">
-            Click to view full details
-          </p>
-        </div>
+        <Button variant="outline" className="justify-center mt-4 w-full">
+          Click to view full details
+        </Button>
       </div>
 
       {isModalOpen && (

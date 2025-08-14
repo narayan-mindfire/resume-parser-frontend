@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import type { Resume } from "../../types/types";
+import { Link } from "react-router";
 
 interface ResumeModalProps {
   resume: Resume;
@@ -85,10 +86,16 @@ function ResumeModal({ resume, onClose }: ResumeModalProps) {
                   File Information
                 </h3>
                 <div className="space-y-2">
-                  <p className="text-[var(--text)]">
-                    <span className="font-medium">Filename:</span>{" "}
+                  <Link
+                    to={resume.url || "#"}
+                    target="_blank"
+                    className="text-[var(--accent)] hover:underline"
+                  >
+                    <span className="font-medium text-[var(--text)]">
+                      View:
+                    </span>{" "}
                     {resume.fileName || "Unknown"}
-                  </p>
+                  </Link>
                   <p className="text-[var(--text)]">
                     <span className="font-medium">Status:</span>
                     <span

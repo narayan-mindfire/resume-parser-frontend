@@ -9,6 +9,7 @@ export interface Resume {
   skills: string[];
   experience: string[];
   education: string[];
+  url: string | null;
 }
 
 export interface Batch {

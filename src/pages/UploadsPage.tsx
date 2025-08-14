@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/axiosInterceptor";
 import type { Batch } from "../types/types";
@@ -24,11 +24,7 @@ function UploadsPage() {
     fetchBatches();
   }, []);
 
-  const handleBatchClick = (batchId: string) => {
-    navigate(`/uploads/${batchId}`);
-  };
-
-  const formatDate = (dateString: string) => {
+  const formatDate = useCallback((dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       year: "numeric",
@@ -37,11 +33,15 @@ function UploadsPage() {
       hour: "2-digit",
       minute: "2-digit",
     });
+  }, []);
+
+  const handleBatchClick = (batchId: string, batchDate: string) => {
+    navigate(`/uploads/${batchId}`, { state: { batchDate } });
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-[85vh] bg-[var(--background)]">
+      <div className="flex items-center justify-center h-[85vh] bg-[var(--background)] transition-colors duration-300">
         <div className="animate-spin rounded-full h-12 w-12 border-4 border-[var(--accent)] border-t-transparent"></div>
         <div className="ml-4 text-lg text-[var(--text)]">
           Loading batches...
@@ -62,7 +62,7 @@ function UploadsPage() {
   }
 
   return (
-    <div className="p-0  max-w-6xl mx-auto bg-[var(--background)] min-h-[80.6vh]">
+    <div className="p-0  max-w-6xl mx-auto bg-[var(--background)] min-h-[80.6vh] transition-colors duration-300">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-[var(--text)] mb-2">
           My Upload Batches
@@ -102,7 +102,9 @@ function UploadsPage() {
                 {batches.map((batch) => (
                   <tr
                     key={batch.id}
-                    onClick={() => handleBatchClick(batch.id)}
+                    onClick={() =>
+                      handleBatchClick(batch.id, formatDate(batch.createdAt))
+                    }
                     className="hover:bg-[var(--background2)] cursor-pointer transition-colors duration-200"
                   >
                     <td className="px-6 py-4 whitespace-nowrap hidden sm:table-cell">
@@ -119,7 +121,10 @@ function UploadsPage() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleBatchClick(batch.id);
+                          handleBatchClick(
+                            batch.id,
+                            formatDate(batch.createdAt),
+                          );
                         }}
                         className="inline-flex items-center px-3 py-1 border border-transparent text-xs leading-4 font-medium rounded-md text-[var(--background)] bg-[var(--accent)] hover:bg-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--accent)] transition-colors duration-200"
                       >

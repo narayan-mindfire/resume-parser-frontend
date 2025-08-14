@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import API from "../services/axiosInterceptor";
 import type { Resume } from "../types/types";
 import ResumeCard from "../components/utils/ResumeCard";
@@ -8,7 +8,9 @@ const BatchUploads: React.FC = () => {
   const { batchId } = useParams<{ batchId: string }>();
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const location = useLocation();
+  const batchDate = location.state?.batchDate;
+  console.log("Batch date", batchDate);
   useEffect(() => {
     const fetchResumes = async () => {
       console.log("Fetching resumes for batch:", batchId);
@@ -46,10 +48,9 @@ const BatchUploads: React.FC = () => {
   }
 
   return (
-    <div className="p-4 max-w-6xl mx-auto bg-[var(--background)] min-h-screen">
+    <div className="p-4 max-w-6xl mx-auto bg-[var(--background)] justify-center max-h-[75vh] overflow-y-auto">
       <h2 className="text-3xl font-bold mb-6 text-[var(--text)]">
-        Uploaded Resumes (Batch:{" "}
-        <span className="text-[var(--accent)]">{batchId}</span>)
+        Uploaded Resumes {batchDate}{" "}
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {resumes.map((resume: Resume) => (

@@ -8,11 +8,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useState } from "react";
 import Button from "../components/utils/Button";
 import InputField from "../components/generic/Input";
-
-const loginSchema = z.object({
-  email: z.email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
+import { loginSchema } from "../zod/schemas";
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
