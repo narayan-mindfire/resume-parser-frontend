@@ -4,7 +4,7 @@ import API from "../services/axiosInterceptor";
 import type { Resume } from "../types/types";
 import ResumeCard from "../components/utils/ResumeCard";
 
-const UploadsPage: React.FC = () => {
+const BatchUploads: React.FC = () => {
   const { batchId } = useParams<{ batchId: string }>();
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,4 +60,4 @@ const UploadsPage: React.FC = () => {
   );
 };
 
-export default UploadsPage;
+export default BatchUploads;

@@ -10,3 +10,9 @@ export interface Resume {
   experience: string[];
   education: string[];
 }
+
+export interface Batch {
+  id: string;
+  userId: string;
+  createdAt: string;
+}

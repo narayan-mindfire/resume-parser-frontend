@@ -77,7 +77,7 @@ const ZipUploader: React.FC = () => {
 
     const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
     const uploadId = `${Date.now()}-${file.name}`;
-    let finalBatchId: string | null = null; // Store the batchId here
+    let finalBatchId: string | null = null;
 
     setFileStatuses({
       [file.name]: {
@@ -141,7 +141,7 @@ const ZipUploader: React.FC = () => {
   };
 
   return (
-    <div className="p-4 max-w-2xl mx-auto min-h-[80vh] bg-[var(--background)] text-[var(--text)] transition-colors duration-300">
+    <div className="p-4 max-w-2xl mx-auto min-h-[80.6vh] bg-[var(--background)] text-[var(--text)] transition-colors duration-300">
       <h2 className="text-2xl font-bold mb-4 text-[var(--primary)]">
         Upload ZIP (Drag & Drop)
       </h2>

@@ -18,11 +18,21 @@ const Navbar = () => {
     <nav className="w-full z-10 px-6 py-4 flex justify-between items-center bg-[var(--background2)] text-[var(--text)] shadow-2xl">
       <Link to={currentUser ? "/upload" : "/"}>
         <div className="text-xl font-bold flex items-center gap-2">
-          📃<span>ResumeParser</span>
+          📃
+          <span className="hidden md:block text-[var(--accent)]">
+            ResumeParser
+          </span>
         </div>
       </Link>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 mr-10 md:mr-0">
+        <button
+          onClick={toggleTheme}
+          className="text-lg hover:text-[var(--primary)] transition-colors duration-200"
+          aria-label="Toggle Theme"
+        >
+          <FontAwesomeIcon icon={darkMode ? faSun : faMoon} />
+        </button>
         {!currentUser ? (
           <>
             <Link
@@ -58,7 +68,7 @@ const Navbar = () => {
                     title={`${currentUser.fname} ${currentUser.lname}`}
                   />
                 )}
-                <span>{currentUser.fname}</span>
+                <span className="hidden md:block">{currentUser.fname}</span>
               </div>
             </Link>
             <button
@@ -69,13 +79,6 @@ const Navbar = () => {
             </button>
           </>
         )}
-        <button
-          onClick={toggleTheme}
-          className="text-lg hover:text-[var(--primary)] transition-colors duration-200"
-          aria-label="Toggle Theme"
-        >
-          <FontAwesomeIcon icon={darkMode ? faSun : faMoon} />
-        </button>
       </div>
     </nav>
   );

@@ -30,7 +30,7 @@ const NotFound = () => {
         <meta property="og:site_name" content="Recipe Sharing Platform" />
       </Helmet>
 
-      <div className="flex flex-col items-center justify-center h-[80vh] text-center">
+      <div className="flex flex-col items-center justify-center h-[84.4vh] text-center">
         <h1 className="text-4xl font-bold mb-2">404 - Page Not Found</h1>
         <p className="text-muted">
           Sorry, the page you’re looking for doesn’t exist.

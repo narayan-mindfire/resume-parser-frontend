@@ -1,4 +1,3 @@
-// components/ResumeCard.tsx
 import { useState } from "react";
 import type { Resume } from "../../types/types";
 import ResumeModal from "../modals/ResumeModal";

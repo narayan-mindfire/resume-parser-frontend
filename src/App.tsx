@@ -10,16 +10,16 @@ import { ProtectedRoute } from "./routeProtection/ProtectedRoute";
 import { GuestRoute } from "./routeProtection/GuestRoute";
 import ZipUploader from "./components/ZipUploader";
 import Profile from "./pages/Profile";
-import UploadsPage from "./pages/Uploads";
+import BatchUploads from "./pages/BatchUploads";
 import SidebarLayout from "./components/generic/SideBar";
+import UploadsPage from "./pages/UploadsPage";
 
 function App() {
   return (
     <div className="transition-colors duration-300">
       <Router>
-        <Navbar /> {/* keep navbar if needed for non-protected pages */}
+        <Navbar />
         <Routes>
-          {/* Public */}
           <Route path="/" element={<Landing />} />
           <Route
             path="/login"
@@ -48,8 +48,8 @@ function App() {
           >
             <Route path="/upload" element={<ZipUploader />} />
             <Route path="/analytics" element={<div>Analytics Page</div>} />
-            <Route path="/matcher" element={<div>Matcher Page</div>} />
-            <Route path="/uploads/:batchId" element={<UploadsPage />} />
+            <Route path="/uploads/:batchId" element={<BatchUploads />} />
+            <Route path="/uploads" element={<UploadsPage />} />
             <Route path="/me" element={<Profile />} />
           </Route>
         </Routes>
