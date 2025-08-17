@@ -1,13 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import API from "../services/axiosInterceptor";
 import type { Batch } from "../types/types";
+import Button from "../components/utils/Button";
 
 function UploadsPage() {
   const [batches, setBatches] = useState<Batch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchBatches = async () => {
@@ -35,10 +34,6 @@ function UploadsPage() {
     });
   }, []);
 
-  const handleBatchClick = (batchId: string, batchDate: string) => {
-    navigate(`/uploads/${batchId}`, { state: { batchDate } });
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[85vh] bg-[var(--background)] transition-colors duration-300">
@@ -62,19 +57,19 @@ function UploadsPage() {
   }
 
   return (
-    <div className="p-0  max-w-6xl mx-auto bg-[var(--background)] min-h-[80.6vh] transition-colors duration-300">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[var(--text)] mb-2">
+    <div className="p-4 max-w-6xl mx-auto bg-[var(--background)] min-h-[80.6vh] transition-colors duration-300">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-[var(--text)] mb-1">
           My Upload Batches
         </h1>
-        <p className="text-[var(--muted)]">
-          Click on any batch to view uploaded resumes
+        <p className="text-[var(--muted)] text-sm">
+          Tap on any batch to view uploaded resumes.
         </p>
       </div>
 
       {batches.length === 0 ? (
         <div className="text-center py-12">
-          <h3 className="text-xl font-semibold text-[var(--text)] mb-2">
+          <h3 className="text-lg font-semibold text-[var(--text)] mb-2">
             No batches found
           </h3>
           <p className="text-[var(--muted)]">
@@ -82,82 +77,95 @@ function UploadsPage() {
           </p>
         </div>
       ) : (
-        <div className="bg-[var(--background)] rounded-lg shadow-lg border border-[var(--background2)] overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-[var(--background2)] border-b border-[var(--background2)]">
-                  <th className="px-6 py-4 text-left text-xs font-medium text-[var(--muted)] uppercase tracking-wider hidden sm:table-cell">
-                    Batch ID
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-[var(--muted)] uppercase tracking-wider">
-                    Created At
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-[var(--muted)] uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--background2)]">
-                {batches.map((batch) => (
-                  <tr
-                    key={batch.id}
-                    onClick={() =>
-                      handleBatchClick(batch.id, formatDate(batch.createdAt))
-                    }
-                    className="hover:bg-[var(--background2)] cursor-pointer transition-colors duration-200"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap hidden sm:table-cell">
-                      <div className="text-sm font-medium text-[var(--text)]">
-                        {batch.id}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-[var(--text)]">
-                        {formatDate(batch.createdAt)}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleBatchClick(
-                            batch.id,
-                            formatDate(batch.createdAt),
-                          );
-                        }}
-                        className="inline-flex items-center px-3 py-1 border border-transparent text-xs leading-4 font-medium rounded-md text-[var(--background)] bg-[var(--accent)] hover:bg-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--accent)] transition-colors duration-200"
-                      >
-                        View Resumes
-                        <svg
-                          className="ml-1 -mr-0.5 h-4 w-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 5l7 7-7 7"
-                          />
-                        </svg>
-                      </button>
-                    </td>
+        <>
+          {/* Desktop table */}
+          <div className="hidden md:block bg-[var(--background)] rounded-lg shadow-lg border border-[var(--background2)] overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-[var(--background2)] border-b border-[var(--background2)]">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-[var(--muted)] uppercase tracking-wider">
+                      Batch ID
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-[var(--muted)] uppercase tracking-wider">
+                      Created At
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-[var(--muted)] uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-[var(--background2)]">
+                  {batches.map((batch) => (
+                    <tr
+                      key={batch.id}
+                      className="hover:bg-[var(--background2)] transition-colors"
+                    >
+                      <td className="px-6 py-4">{batch.id}</td>
+                      <td className="px-6 py-4">
+                        {formatDate(batch.createdAt)}
+                      </td>
+                      <td className="px-6 py-4 space-x-2">
+                        <Button
+                          to={`/uploads/${batch.id}`}
+                          className="justify-center"
+                        >
+                          View Resumes
+                        </Button>
+                        <Button
+                          to={`/insights/${batch.id}`}
+                          className="justify-center"
+                        >
+                          Analytics
+                        </Button>
+                        <Button to={`/match/${batch.id}`}>Match Jobs</Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+
+          {/* Mobile cards */}
+          <div className="md:hidden space-y-4">
+            {batches.map((batch) => (
+              <div
+                key={batch.id}
+                className="bg-[var(--background2)] rounded-lg p-4 shadow"
+              >
+                <div className="mb-2">
+                  <p className="text-xs text-[var(--muted)]">Batch ID</p>
+                  <p className="font-medium text-[var(--text)] break-all">
+                    {batch.id}
+                  </p>
+                </div>
+                <div className="mb-2">
+                  <p className="text-xs text-[var(--muted)]">Created At</p>
+                  <p className="text-[var(--text)]">
+                    {formatDate(batch.createdAt)}
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  <Button to={`/uploads/${batch.id}`} className="flex-1">
+                    View Resumes
+                  </Button>
+                  <Button to={`/insights/${batch.id}`} className="flex-1">
+                    Analytics
+                  </Button>
+                  <Button to={`/match/${batch.id}`} className="flex-1">
+                    Match Jobs
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       {batches.length > 0 && (
-        <div className="mt-6 text-center">
-          <p className="text-sm text-[var(--muted)]">
-            Total batches:{" "}
-            <span className="font-semibold">{batches.length}</span>
-          </p>
+        <div className="mt-6 text-center text-sm text-[var(--muted)]">
+          Total batches: <span className="font-semibold">{batches.length}</span>
         </div>
       )}
     </div>

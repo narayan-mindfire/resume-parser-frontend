@@ -17,3 +17,17 @@ export interface Batch {
   userId: string;
   createdAt: string;
 }
+
+export interface Insights {
+  topSkills: { skill: string; count: number }[];
+  averageExperience: number;
+  commonUniversities: { university: string; count: number }[];
+}
+
+export interface JobType {
+  id: string;
+  title: string;
+  description: string;
+  skills: string[];
+  required_experience_years: number;
+}

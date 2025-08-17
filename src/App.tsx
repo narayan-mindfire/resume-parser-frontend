@@ -13,6 +13,9 @@ import Profile from "./pages/Profile";
 import BatchUploads from "./pages/BatchUploads";
 import SidebarLayout from "./components/generic/SideBar";
 import UploadsPage from "./pages/UploadsPage";
+import BatchInsightsPage from "./pages/Insights";
+import JobMatchingResultPage from "./pages/JobMatchingResult";
+import JobMatchingPage from "./pages/JobMatching";
 
 function App() {
   return (
@@ -49,8 +52,14 @@ function App() {
             <Route path="/upload" element={<ZipUploader />} />
             <Route path="/analytics" element={<div>Analytics Page</div>} />
             <Route path="/uploads/:batchId" element={<BatchUploads />} />
+            <Route path="/match/:batchId" element={<JobMatchingPage />} />
+            <Route
+              path="/match/:batchId/job/:jobId"
+              element={<JobMatchingResultPage />}
+            />
             <Route path="/uploads" element={<UploadsPage />} />
             <Route path="/me" element={<Profile />} />
+            <Route path="/insights/:batchId" element={<BatchInsightsPage />} />
           </Route>
         </Routes>
         <Footer />

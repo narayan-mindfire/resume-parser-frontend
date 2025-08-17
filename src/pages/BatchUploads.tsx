@@ -3,6 +3,7 @@ import { useLocation, useParams } from "react-router-dom";
 import API from "../services/axiosInterceptor";
 import type { Resume } from "../types/types";
 import ResumeCard from "../components/utils/ResumeCard";
+import Button from "../components/utils/Button";
 
 const BatchUploads: React.FC = () => {
   const { batchId } = useParams<{ batchId: string }>();
@@ -49,6 +50,7 @@ const BatchUploads: React.FC = () => {
 
   return (
     <div className="p-4 max-w-6xl mx-auto bg-[var(--background)] justify-center max-h-[75vh] overflow-y-auto">
+      <Button to={`/insights/${batchId}`}>insights</Button>
       <h2 className="text-3xl font-bold mb-6 text-[var(--text)]">
         Uploaded Resumes {batchDate}{" "}
       </h2>
