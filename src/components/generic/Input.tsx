@@ -21,12 +21,17 @@ export default function InputField({
   accept,
   className = "",
 }: InputFieldProps) {
+  const inputId = register.name;
+
   return (
     <div className={className}>
-      <label className="block mb-1 text-[var(--text)]">{label}</label>
+      <label htmlFor={inputId} className="block mb-1 text-[var(--text)]">
+        {label}
+      </label>
       {textarea ? (
         <textarea
           {...register}
+          id={inputId}
           placeholder={placeholder}
           className="w-full px-4 py-2 border rounded-lg bg-[var(--background)] text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
         />
@@ -34,6 +39,7 @@ export default function InputField({
         <input
           type={type}
           {...register}
+          id={inputId}
           placeholder={placeholder}
           accept={accept}
           className="w-full px-4 py-2 border rounded-lg bg-[var(--background)] text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"

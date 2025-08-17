@@ -11,14 +11,11 @@ const BatchUploads: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
   const batchDate = location.state?.batchDate;
-  console.log("Batch date", batchDate);
   useEffect(() => {
     const fetchResumes = async () => {
-      console.log("Fetching resumes for batch:", batchId);
       if (!batchId) return;
       try {
         const { data } = await API.get(`/resumes/by-batch/${batchId}`);
-        console.log("data: ", data);
         setResumes(data.resumes);
       } catch (err) {
         console.error("Error fetching resumes:", err);

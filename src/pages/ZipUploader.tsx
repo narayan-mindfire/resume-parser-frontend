@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 import API from "../services/axiosInterceptor";
 import { useNavigate } from "react-router-dom";
-import Button from "./utils/Button";
+import Button from "../components/utils/Button";
 
 const CHUNK_SIZE = 1024 * 1024;
 const API_URL = "http://localhost:5003";
@@ -35,7 +35,7 @@ const ZipUploader: React.FC = () => {
     const socket = io(API_URL, { transports: ["websocket"] });
     socketRef.current = socket;
 
-    socket.on("connect", () => console.log("Connected to Socket.IO server"));
+    socket.on("connect", () => console.info("Connected to Socket.IO server"));
 
     socket.on("processing-complete", (data) => {
       setFileStatuses((prev) => ({
@@ -172,6 +172,7 @@ const ZipUploader: React.FC = () => {
           className="hidden"
           ref={fileInputRef}
           onChange={onFileSelect}
+          data-testid="file-input"
         />
       </div>
 

@@ -22,15 +22,11 @@ API.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response?.status === 401) {
-      console.log("401 received ==========================================");
-    }
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
       !originalRequest.url.includes("/auth/refresh-token")
     ) {
-      console.log("not authorised");
       originalRequest._retry = true;
       try {
         await API.post("/auth/refresh-token");

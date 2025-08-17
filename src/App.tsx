@@ -8,7 +8,7 @@ import NotFound from "./pages/NotFound";
 import Unauthenticated from "./pages/Unauthenticated";
 import { ProtectedRoute } from "./routeProtection/ProtectedRoute";
 import { GuestRoute } from "./routeProtection/GuestRoute";
-import ZipUploader from "./components/ZipUploader";
+import ZipUploader from "./pages/ZipUploader";
 import Profile from "./pages/Profile";
 import BatchUploads from "./pages/BatchUploads";
 import SidebarLayout from "./components/generic/SideBar";

@@ -92,7 +92,7 @@ const ProfilePage = () => {
             <EditProfileModal
               defaultValues={{ ...user }}
               onClose={() => setIsEditing(false)}
-              onSuccess={() => console.log("success")}
+              onSuccess={() => console.info("success")}
             />
           </Suspense>
         )}
