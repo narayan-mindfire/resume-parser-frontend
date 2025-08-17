@@ -78,7 +78,6 @@ function UploadsPage() {
         </div>
       ) : (
         <>
-          {/* Desktop table */}
           <div className="hidden md:block bg-[var(--background)] rounded-lg shadow-lg border border-[var(--background2)] overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -127,7 +126,6 @@ function UploadsPage() {
             </div>
           </div>
 
-          {/* Mobile cards */}
           <div className="md:hidden space-y-4">
             {batches.map((batch) => (
               <div

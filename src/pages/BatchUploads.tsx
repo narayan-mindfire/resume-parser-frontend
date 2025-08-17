@@ -4,6 +4,7 @@ import API from "../services/axiosInterceptor";
 import type { Resume } from "../types/types";
 import ResumeCard from "../components/utils/ResumeCard";
 import Button from "../components/utils/Button";
+import { exportResumesToCSV } from "../services/exportCSV";
 
 const BatchUploads: React.FC = () => {
   const { batchId } = useParams<{ batchId: string }>();
@@ -11,6 +12,7 @@ const BatchUploads: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
   const batchDate = location.state?.batchDate;
+
   useEffect(() => {
     const fetchResumes = async () => {
       if (!batchId) return;
@@ -28,29 +30,35 @@ const BatchUploads: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-[var(--background)]">
+      <div className="flex items-center justify-center h-screen bg-[var(--background)] text-[var(--text)]">
         <div className="animate-spin rounded-full h-12 w-12 border-4 border-[var(--accent)] border-t-transparent"></div>
-        <div className="ml-4 text-lg text-[var(--text)]">
-          Loading resumes...
-        </div>
+        <div className="ml-4 text-lg">{`Loading resumes...`}</div>
       </div>
     );
   }
 
   if (resumes.length === 0) {
     return (
-      <div className="p-8 text-center text-[var(--text)] bg-[var(--background)]">
+      <div className="p-8 text-center bg-[var(--background)] text-[var(--text)]">
         No resumes found for this batch.
       </div>
     );
   }
 
   return (
-    <div className="p-4 max-w-6xl mx-auto bg-[var(--background)] justify-center max-h-[75vh] overflow-y-auto">
-      <Button to={`/insights/${batchId}`}>insights</Button>
-      <h2 className="text-3xl font-bold mb-6 text-[var(--text)]">
-        Uploaded Resumes {batchDate}{" "}
-      </h2>
+    <div className="p-6 max-w-6xl mx-auto bg-[var(--background)] text-[var(--text)]">
+      <div className="flex flex-wrap items-center gap-4 mb-6">
+        <Button to={`/insights/${batchId}`}>Insights</Button>
+        <Button
+          onClick={() => exportResumesToCSV(resumes, batchId!)}
+          variant="outline"
+        >
+          Export as CSV
+        </Button>
+      </div>
+
+      <h2 className="text-3xl font-bold mb-6">{`Uploaded Resumes ${batchDate || ""}`}</h2>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {resumes.map((resume: Resume) => (
           <ResumeCard key={resume.id} {...resume} />
