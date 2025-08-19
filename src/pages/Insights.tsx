@@ -85,7 +85,7 @@ function BatchInsightsPage() {
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--text)] transition-colors duration-300">
-      <div className="bg-gradient-to-r from-[var(--accent)] to-[var(--primary)] text-[var(--background)]">
+      <div className="bg-[var(--accent)] text-[var(--background)]">
         <div className="container mx-auto px-6 py-8">
           <h1 className="text-4xl font-bold mb-2">Batch Analytics Dashboard</h1>
           <p className="text-lg opacity-90">Batch ID: {batchId}</p>
